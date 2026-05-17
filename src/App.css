@@ -261,7 +261,7 @@ body {
 
 .product-info {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 0.75rem;
 }
 
@@ -288,11 +288,199 @@ body {
   font-family: 'Courier New', monospace;
 }
 
+.scanner-section {
+  margin-bottom: 1.5rem;
+}
+
+.scanner-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.scanner-tab {
+  flex: 1;
+  padding: 0.75rem;
+  border: 2px solid #333;
+  background: white;
+  color: #333;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.scanner-tab.active {
+  background: #333;
+  color: white;
+}
+
+.scanner-tab:not(.active):hover {
+  background: #f0f0f0;
+}
+
 .scanner-container {
   margin-bottom: 1.5rem;
   border-radius: 4px;
   overflow: hidden;
   border: 3px solid #333;
+}
+
+.file-upload-section {
+  margin-bottom: 1.5rem;
+}
+
+.file-upload-box {
+  position: relative;
+  border: 3px dashed #333;
+  border-radius: 4px;
+  padding: 2rem;
+  text-align: center;
+  background: #f9f9f9;
+  transition: all 0.3s ease;
+}
+
+.file-upload-box:hover {
+  background: #f0f0f0;
+  border-color: #000;
+}
+
+.file-input {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.file-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.file-label svg {
+  width: 3rem;
+  height: 3rem;
+  color: #333;
+}
+
+.file-label span:first-of-type {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.file-hint {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.uploaded-image-preview {
+  margin-top: 1rem;
+  border: 2px solid #333;
+  border-radius: 4px;
+  padding: 1rem;
+  background: white;
+}
+
+.uploaded-image-preview img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+.manual-input-section {
+  margin-top: 1.5rem;
+}
+
+.manual-input-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1.5rem 0;
+  position: relative;
+}
+
+.manual-input-divider::before,
+.manual-input-divider::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: #333;
+}
+
+.manual-input-divider span {
+  padding: 0 1rem;
+  font-weight: 700;
+  color: #666;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.manual-input-box {
+  padding: 1.5rem;
+  background: #f9f9f9;
+  border: 2px solid #333;
+  border-radius: 4px;
+}
+
+.manual-input-box label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.manual-input-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.manual-input-group input {
+  flex: 1;
+  padding: 0.75rem;
+  background: white;
+  border: 2px solid #333;
+  color: #333;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+  font-family: 'Courier New', monospace;
+}
+
+.manual-input-group input:focus {
+  border-color: #000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+.manual-submit-button {
+  padding: 0.75rem 1.5rem;
+  background: #333;
+  color: white;
+  border: 2px solid #333;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.manual-submit-button:hover {
+  background: #000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .scanned-result {

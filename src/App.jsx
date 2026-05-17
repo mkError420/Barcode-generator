@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import JsBarcode from 'jsbarcode'
 import { Html5QrcodeScanner } from 'html5-qrcode'
+import Quagga from 'quagga'
 import './App.css'
 
 function App() {
@@ -10,6 +11,9 @@ function App() {
   const [barcodeData, setBarcodeData] = useState(null)
   const [scannedProduct, setScannedProduct] = useState(null)
   const [activeTab, setActiveTab] = useState('generate')
+  const [scanMode, setScanMode] = useState('camera')
+  const [uploadedImage, setUploadedImage] = useState(null)
+  const [manualProductId, setManualProductId] = useState('')
   const canvasRef = useRef(null)
 
   const generateBarcode = () => {
@@ -25,15 +29,16 @@ function App() {
       const canvas = document.getElementById('barcode-canvas')
       if (canvas) {
         JsBarcode(canvas, productId, {
-          format: 'CODE128',
-          lineColor: '#1e40af',
+          format: 'CODE39',
+          lineColor: '#000000',
           width: 3,
-          height: 120,
+          height: 100,
           displayValue: true,
           fontSize: 18,
           margin: 20,
           background: '#ffffff',
-          font: 'monospace'
+          font: 'monospace',
+          textPosition: 'bottom'
         })
       }
     }, 100)
@@ -42,9 +47,25 @@ function App() {
   const downloadBarcode = () => {
     const canvas = document.getElementById('barcode-canvas')
     if (canvas) {
+      // Create a high-resolution canvas
+      const highResCanvas = document.createElement('canvas')
+      const scale = 3 // 3x resolution for better quality
+      highResCanvas.width = canvas.width * scale
+      highResCanvas.height = canvas.height * scale
+      
+      const ctx = highResCanvas.getContext('2d')
+      ctx.scale(scale, scale)
+      
+      // Draw white background
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+      
+      // Draw the original canvas onto the high-res canvas
+      ctx.drawImage(canvas, 0, 0)
+      
       const link = document.createElement('a')
       link.download = `${productName.replace(/\s+/g, '_')}_barcode.png`
-      link.href = canvas.toDataURL('image/png')
+      link.href = highResCanvas.toDataURL('image/png', 1.0) // Maximum quality
       link.click()
     }
   }
@@ -68,6 +89,58 @@ function App() {
         // Handle scan errors silently
       }
     )
+  }
+
+  const handleFileUpload = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = async (e) => {
+      const imageDataUrl = e.target.result
+      setUploadedImage(imageDataUrl)
+
+      try {
+        // Use Quagga for barcode scanning from images
+        Quagga.decodeSingle({
+          src: imageDataUrl,
+          numOfWorkers: 0,
+          decoder: {
+            readers: ["code_39_reader", "code_128_reader"]
+          }
+        }, function(result) {
+          if (result && result.codeResult) {
+            const decodedText = result.codeResult.code
+            const product = products.find(p => p.id === decodedText)
+            if (product) {
+              setScannedProduct(product)
+            } else {
+              alert('Product not found with ID: ' + decodedText)
+            }
+          } else {
+            alert('Could not decode barcode from image. Please try a clearer image or use the manual input option below.')
+          }
+        })
+      } catch (err) {
+        console.error('Error scanning file:', err)
+        alert('Could not decode barcode from image. Please try a clearer image or use the manual input option below.')
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleManualInput = () => {
+    if (!manualProductId) {
+      alert('Please enter a product ID')
+      return
+    }
+
+    const product = products.find(p => p.id === manualProductId)
+    if (product) {
+      setScannedProduct(product)
+    } else {
+      alert('Product not found with ID: ' + manualProductId)
+    }
   }
 
   const products = [
@@ -138,7 +211,7 @@ function App() {
                 type="text"
                 value={productPrice}
                 onChange={(e) => setProductPrice(e.target.value)}
-                placeholder="Enter product price (e.g., $19.99)"
+                placeholder="Enter product price (e.g., ৳19.99)"
               />
             </div>
 
@@ -191,7 +264,72 @@ function App() {
               <h2>Scan Barcode</h2>
             </div>
             
-            <div id="reader" className="scanner-container"></div>
+            <div className="scanner-section">
+              <div className="scanner-tabs">
+                <button
+                  onClick={() => setScanMode('camera')}
+                  className={`scanner-tab ${scanMode === 'camera' ? 'active' : ''}`}
+                >
+                  Camera Scan
+                </button>
+                <button
+                  onClick={() => setScanMode('file')}
+                  className={`scanner-tab ${scanMode === 'file' ? 'active' : ''}`}
+                >
+                  Image File
+                </button>
+              </div>
+
+              {scanMode === 'camera' && (
+                <div id="reader" className="scanner-container"></div>
+              )}
+
+              {scanMode === 'file' && (
+                <div className="file-upload-section">
+                  <div className="file-upload-box">
+                    <input
+                      type="file"
+                      id="barcode-file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      className="file-input"
+                    />
+                    <label htmlFor="barcode-file" className="file-label">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span>Click to upload barcode image</span>
+                      <span className="file-hint">or drag and drop</span>
+                    </label>
+                  </div>
+                  {uploadedImage && (
+                    <div className="uploaded-image-preview">
+                      <img src={uploadedImage} alt="Uploaded barcode" />
+                    </div>
+                  )}
+                  
+                  <div className="manual-input-section">
+                    <div className="manual-input-divider">
+                      <span>OR</span>
+                    </div>
+                    <div className="manual-input-box">
+                      <label>Enter Product ID Manually</label>
+                      <div className="manual-input-group">
+                        <input
+                          type="text"
+                          value={manualProductId}
+                          onChange={(e) => setManualProductId(e.target.value)}
+                          placeholder="Enter product ID (e.g., 12345)"
+                        />
+                        <button onClick={handleManualInput} className="manual-submit-button">
+                          Search
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {scannedProduct && (
               <div className="scanned-result">
@@ -205,16 +343,8 @@ function App() {
                 </div>
                 <div className="product-info">
                   <div className="info-box">
-                    <p>Product Name</p>
-                    <p>{scannedProduct.name}</p>
-                  </div>
-                  <div className="info-box">
                     <p>Product ID</p>
                     <p>{scannedProduct.id}</p>
-                  </div>
-                  <div className="info-box">
-                    <p>Product Price</p>
-                    <p>{scannedProduct.price}</p>
                   </div>
                 </div>
               </div>
@@ -225,6 +355,9 @@ function App() {
             </div>
           </div>
         )}
+        
+        {/* Hidden div for file scanner */}
+        <div id="file-scanner" style={{ display: 'none' }}></div>
       </div>
     </div>
   )
