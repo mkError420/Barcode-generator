@@ -211,7 +211,13 @@ body {
   letter-spacing: 1px;
 }
 
-.download-button {
+.barcode-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.download-button,
+.print-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -227,11 +233,13 @@ body {
   letter-spacing: 0.5px;
 }
 
-.download-button:hover {
+.download-button:hover,
+.print-button:hover {
   background: #000;
 }
 
-.download-button svg {
+.download-button svg,
+.print-button svg {
   width: 1rem;
   height: 1rem;
 }

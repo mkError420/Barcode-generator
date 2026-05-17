@@ -70,6 +70,60 @@ function App() {
     }
   }
 
+  const printBarcode = () => {
+    const canvas = document.getElementById('barcode-canvas')
+    if (canvas) {
+      // Create a new window for printing
+      const printWindow = window.open('', '_blank')
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Print Barcode - ${productName}</title>
+          <style>
+            body {
+              margin: 0;
+              padding: 20px;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              min-height: 100vh;
+            }
+            .barcode-container {
+              text-align: center;
+            }
+            .barcode-container img {
+              max-width: 100%;
+            }
+            .product-info {
+              margin-top: 20px;
+              font-family: Arial, sans-serif;
+              font-size: 14px;
+            }
+            .product-info p {
+              margin: 5px 0;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="barcode-container">
+            <img src="${canvas.toDataURL('image/png')}" alt="Barcode" />
+            <div class="product-info">
+              <p><strong>Product Name:</strong> ${productName}</p>
+              <p><strong>Product ID:</strong> ${productId}</p>
+              <p><strong>Product Price:</strong> ${productPrice}</p>
+            </div>
+          </div>
+        </body>
+        </html>
+      `)
+      printWindow.document.close()
+      printWindow.onload = () => {
+        printWindow.print()
+      }
+    }
+  }
+
   const startScanner = () => {
     const scanner = new Html5QrcodeScanner(
       'reader',
@@ -214,12 +268,20 @@ function App() {
               <div className="barcode-result">
                 <div className="barcode-header">
                   <h3>Generated Barcode</h3>
-                  <button onClick={downloadBarcode} className="download-button">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                    </svg>
-                    Download
-                  </button>
+                  <div className="barcode-actions">
+                    <button onClick={downloadBarcode} className="download-button">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Download
+                    </button>
+                    <button onClick={printBarcode} className="print-button">
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                      </svg>
+                      Print
+                    </button>
+                  </div>
                 </div>
                 <div className="barcode-canvas-container">
                   <canvas id="barcode-canvas" ref={canvasRef}></canvas>
