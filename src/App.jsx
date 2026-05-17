@@ -163,15 +163,6 @@ function App() {
           >
             Generate Barcode
           </button>
-          <button
-            onClick={() => {
-              setActiveTab('scan')
-              startScanner()
-            }}
-            className={`tab-button ${activeTab === 'scan' ? 'active' : 'inactive'}`}
-          >
-            Scan Barcode
-          </button>
         </div>
 
         {activeTab === 'generate' && (
